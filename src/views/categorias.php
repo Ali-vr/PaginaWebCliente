@@ -6,7 +6,7 @@
   <?php else: ?>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
       <?php foreach ($productos as $producto): ?>
-        <?= $this->fetch("partials/producto-card.php", ["producto" => $producto]) ?>
+        <?= $this->fetch("layouts/producto-card.php", ["producto" => $producto]) ?>
       <?php endforeach; ?>
     </div>
   <?php endif; ?>

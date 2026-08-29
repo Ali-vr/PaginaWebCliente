@@ -1,5 +1,5 @@
 <div class="container my-5">
-  <?= $this->fetch("partials/carrito-pasos.php", ["pasoActual" => 2]) ?>
+<?= $this->fetch("carrito/pasos.php", ["pasoActual" => 2]) ?>
 
   <form action="/carrito/pago" method="post" class="row g-4">
     <div class="col-lg-8">

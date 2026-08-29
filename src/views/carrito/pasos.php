@@ -1,9 +1,5 @@
 <?php
-  $pasos = [
-    1 => "Carrito",
-    2 => "Pago",
-    3 => "Confirmación",
-  ];
+  $pasos = [1 => "Carrito", 2 => "Pago", 3 => "Confirmación"];
 ?>
 <div class="d-flex justify-content-center align-items-center gap-2 gap-md-4 my-4 flex-wrap">
   <?php foreach ($pasos as $numero => $nombre): ?>

@@ -1,5 +1,5 @@
 <div class="container my-5 text-center">
-  <?= $this->fetch("partials/carrito-pasos.php", ["pasoActual" => 3]) ?>
+<?= $this->fetch("carrito/pasos.php", ["pasoActual" => 3]) ?>
 
   <div class="bg-white rounded p-5 mx-auto" style="max-width: 600px;">
     <h1 class="h3 mb-3">¡Gracias por tu compra!</h1>
