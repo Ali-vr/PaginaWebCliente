@@ -2,95 +2,120 @@
 
 declare(strict_types=1);
 
+function getDB(): PDO
+{
+    static $pdo = null;
+
+    if ($pdo instanceof PDO) {
+        return $pdo;
+    }
+
+    $host = $_ENV['DB_HOST'] ?? '127.0.0.1';
+    $port = $_ENV['DB_PORT'] ?? '3306';
+    $dbName = $_ENV['DB_NAME'] ?? 'Muebleria';
+    $user = $_ENV['DB_USER'] ?? 'root';
+    $pass = $_ENV['DB_PASS'] ?? '';
+    $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
+
+    $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=%s', $host, $port, $dbName, $charset);
+
+    try {
+        $pdo = new PDO($dsn, $user, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]);
+
+        return $pdo;
+    } catch (PDOException $exception) {
+        throw new RuntimeException(
+            sprintf(
+                'No se pudo conectar a la base de datos %s en %s:%s. %s',
+                $dbName,
+                $host,
+                $port,
+                $exception->getMessage(),
+            ),
+            0,
+            $exception,
+        );
+    }
+}
+
+function getDBWithoutDatabase(): PDO
+{
+    static $pdo = null;
+
+    if ($pdo instanceof PDO) {
+        return $pdo;
+    }
+
+    $host = $_ENV['DB_HOST'] ?? '127.0.0.1';
+    $port = $_ENV['DB_PORT'] ?? '3306';
+    $user = $_ENV['DB_USER'] ?? 'root';
+    $pass = $_ENV['DB_PASS'] ?? '';
+    $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
+
+    $dsn = sprintf('mysql:host=%s;port=%s;charset=%s', $host, $port, $charset);
+
+    try {
+        $pdo = new PDO($dsn, $user, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]);
+
+        return $pdo;
+    } catch (PDOException $exception) {
+        throw new RuntimeException(
+            sprintf(
+                'No se pudo conectar a MySQL en %s:%s. %s',
+                $host,
+                $port,
+                $exception->getMessage(),
+            ),
+            0,
+            $exception,
+        );
+    }
+}
+
 class Database
 {
-  private const ALLOWED_DRIVERS = ["mysql", "pgsql"];
-
-  private string $driver;
-  private string $host;
-  private string $dbName;
-  private string $username;
-  private string $password;
-  private ?PDO $connection = null;
-
-  public function __construct()
-  {
-    $this->driver = $_ENV["DB_DRIVER"] ?? "mysql";
-
-    if (!in_array($this->driver, self::ALLOWED_DRIVERS, true)) {
-      throw new InvalidArgumentException(
-        "Driver de base de datos no soportado",
-      );
+    public function getConnection(): PDO
+    {
+        return getDB();
     }
 
-    $this->host = $_ENV["DB_HOST"] ?? "localhost";
-    $this->dbName = $_ENV["DB_NAME"] ?? "slim_php";
-    $this->username = $_ENV["DB_USER"] ?? "root";
-    $this->password = $_ENV["DB_PASS"] ?? "root";
-  }
-
-  public function getConnection(): PDO
-  {
-    if ($this->connection !== null) {
-      return $this->connection;
+    public function getConnectionWithoutDatabase(): PDO
+    {
+        return getDBWithoutDatabase();
     }
 
-    try {
-      $port = $_ENV["DB_PORT"] ?? ($this->driver === "pgsql" ? "5432" : "3306");
-      $dsn = $this->buildDsn($port);
+    /**
+     * @param callable(PDO): mixed $transaction
+     * @return mixed
+     */
+    public function runTransaction(callable $transaction)
+    {
+        $connection = $this->getConnection();
 
-      $this->connection = new PDO($dsn, $this->username, $this->password, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false,
-      ]);
+        if ($connection->inTransaction()) {
+            throw new RuntimeException('No se pueden anidar transacciones.');
+        }
 
-      return $this->connection;
-    } catch (PDOException $e) {
-      throw new RuntimeException(
-        "Fallo en la conexión a la base de datos",
-        0,
-        $e,
-      );
+        try {
+            $connection->beginTransaction();
+            $result = $transaction($connection);
+            $connection->commit();
+
+            return $result;
+        } catch (Throwable $exception) {
+            if ($connection->inTransaction()) {
+                $connection->rollBack();
+            }
+
+            throw $exception;
+        }
     }
-  }
-
-  /**
-   * @param Closure(PDO): mixed $tr
-   */
-  public function runTransaction(Closure $tr): mixed
-  {
-    $conn = $this->getConnection();
-
-    if ($conn->inTransaction()) {
-      throw new RuntimeException(
-        "Las transacciones anidadas no están permitidas. No llames a runTransaction dentro de otra.",
-      );
-    }
-
-    try {
-      $conn->beginTransaction();
-
-      $result = $tr($conn);
-
-      $conn->commit();
-
-      return $result;
-    } catch (Throwable $e) {
-      if ($conn->inTransaction()) {
-        $conn->rollBack();
-      }
-
-      throw $e;
-    }
-  }
-
-  private function buildDsn(string $port): string
-  {
-    if ($this->driver === "pgsql") {
-      return "pgsql:host={$this->host};port={$port};dbname={$this->dbName}";
-    }
-
-    return "mysql:host={$this->host};port={$port};dbname={$this->dbName};charset=utf8mb4";
-  }
 }

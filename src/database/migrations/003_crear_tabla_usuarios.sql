@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS usuarios (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(150) NOT NULL,
+  email VARCHAR(200) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  telefono VARCHAR(30),
+  calle VARCHAR(200),
+  localidad VARCHAR(100),
+  provincia VARCHAR(100),
+  codigo_postal VARCHAR(10),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

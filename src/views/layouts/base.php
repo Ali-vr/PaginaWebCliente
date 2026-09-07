@@ -9,6 +9,11 @@
   </head>
   <body>
 
+    <!-- Barra promo top (nueva) -->
+    <div class="promo-bar">
+      🪵 Envíos a todo el país en compras mayores a $100.000
+    </div>
+
     <!-- NAVBAR PRINCIPAL -->
     <nav class="navbar navbar-expand-lg navbar-principal" data-bs-theme="dark">
       <div class="container">
