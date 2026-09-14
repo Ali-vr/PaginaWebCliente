@@ -14,7 +14,7 @@ function getDB(): PDO
     $port = $_ENV['DB_PORT'] ?? '3306';
     $dbName = $_ENV['DB_NAME'] ?? 'Muebleria';
     $user = $_ENV['DB_USER'] ?? 'root';
-    $pass = $_ENV['DB_PASS'] ?? '';
+    $pass = $_ENV['DB_PASSWORD'] ?? ($_ENV['DB_PASS'] ?? '');
     $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
 
     $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=%s', $host, $port, $dbName, $charset);
@@ -53,7 +53,7 @@ function getDBWithoutDatabase(): PDO
     $host = $_ENV['DB_HOST'] ?? '127.0.0.1';
     $port = $_ENV['DB_PORT'] ?? '3306';
     $user = $_ENV['DB_USER'] ?? 'root';
-    $pass = $_ENV['DB_PASS'] ?? '';
+    $pass = $_ENV['DB_PASSWORD'] ?? ($_ENV['DB_PASS'] ?? '');
     $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
 
     $dsn = sprintf('mysql:host=%s;port=%s;charset=%s', $host, $port, $charset);
