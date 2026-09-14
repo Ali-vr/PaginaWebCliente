@@ -31,24 +31,28 @@
             </button>
           </form>
 
-          <a href="/carrito" class="btn-carrito ms-lg-3" aria-label="Carrito de compras">
-            <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 14a1 1 0 1 1 0 2 1 1 0 0 1 0-2m9 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg>
-            <span class="badge bg-danger badge-carrito"><?= (int) ($cantidadCarrito ?? 0) ?></span>
-          </a>
+          <div class="navbar-acciones d-flex align-items-center gap-3 ms-lg-3">
+            <a href="/contacto" class="nav-link-accion">Contacto</a>
+            <?php if (!empty($_SESSION["usuario_id"])): ?>
+              <a href="/mi-cuenta" class="nav-link-accion nav-link-cuenta" aria-label="Mi cuenta">
+                <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.025 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/></svg>
+                <span class="nav-link-cuenta-label">Mi cuenta</span>
+              </a>
+              <?php if (($_SESSION["usuario"]["rol"] ?? "usuario") === "admin"): ?><a href="/admin" class="nav-link-accion">Admin</a><?php endif; ?>
+              <a href="/logout" class="nav-link-accion">Salir</a>
+            <?php else: ?>
+              <a href="/login" class="nav-link-accion nav-link-cuenta" aria-label="Iniciar sesión">
+                <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.025 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/></svg>
+                <span class="nav-link-cuenta-label">Ingresar</span>
+              </a>
+              <a href="/registro" class="nav-link-accion">Registro</a>
+            <?php endif; ?>
+            <a href="/carrito" class="btn-carrito" aria-label="Carrito de compras">
+              <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 14a1 1 0 1 1 0 2 1 1 0 0 1 0-2m9 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg>
+              <span class="badge bg-danger badge-carrito"><?= (int) ($cantidadCarrito ?? 0) ?></span>
+            </a>
+          </div>
         </div>
-      </div>
-    </nav>
-
-    <!-- SUBNAV DE CATEGORÍAS -->
-    <nav class="subnav-categorias">
-      <div class="container">
-        <ul class="nav justify-content-center flex-wrap py-2">
-          <?php foreach ($categorias ?? [] as $slug => $nombre): ?>
-            <li class="nav-item"><a class="nav-link <?= ($categoriaSlug ?? null) === $slug ? "active" : "" ?>" href="/categoria/<?= html($slug) ?>"><?= html($nombre) ?></a></li>
-          <?php endforeach; ?>
-          <li class="nav-item"><a class="nav-link" href="/contacto">Contacto</a></li>
-          <li class="nav-item"><a class="nav-link" href="/login">Mi cuenta</a></li>
-        </ul>
       </div>
     </nav>
 
@@ -102,5 +106,6 @@
     </footer>
 
     <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/catalogo-filtros.js"></script>
   </body>
 </html>
