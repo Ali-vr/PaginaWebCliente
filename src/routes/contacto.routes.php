@@ -1,7 +1,5 @@
 <?php
 
-$app->get("/contacto", function ($request, $response) use ($render) {
-  return $render($response, "contacto.php", [
-    "title" => "Contacto | Maderas Artesanales",
-  ]);
-});
+require_once __DIR__ . "/../controllers/contacto.controller.php";
+
+$app->get("/contacto", "show_contacto");

@@ -1,19 +1,5 @@
 <?php
 
-$app->get("/buscar", function ($request, $response) use ($render, $productos) {
-  $q = trim((string) ($request->getQueryParams()["q"] ?? ""));
+require_once __DIR__ . "/../controllers/buscador.controller.php";
 
-  $resultados = [];
-  if ($q !== "") {
-    $resultados = array_values(array_filter(
-      $productos,
-      fn(array $p): bool => stripos($p["nombre"], $q) !== false,
-    ));
-  }
-
-  return $render($response, "buscar.php", [
-    "query"      => $q,
-    "resultados" => $resultados,
-    "title"      => $q !== "" ? "Búsqueda: $q | Maderas Artesanales" : "Buscar | Maderas Artesanales",
-  ]);
-});
+$app->get("/buscar", "show_buscar");
