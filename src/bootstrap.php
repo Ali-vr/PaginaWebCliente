@@ -5,11 +5,14 @@ use Slim\Factory\AppFactory;
 use Slim\Views\PhpRenderer;
 use Dotenv\Dotenv;
 
-require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/database/database.php';
-require __DIR__ . '/middleware/AuthMiddleware.php';
-require __DIR__ . '/middleware/AdminMiddleware.php';
-require __DIR__ . '/utils/carrito.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/database/database.php';
+require_once __DIR__ . '/persistence/catalogo.persistence.php';
+require_once __DIR__ . '/persistence/auth.persistence.php';
+require_once __DIR__ . '/persistence/admin.persistence.php';
+require_once __DIR__ . '/middleware/AuthMiddleware.php';
+require_once __DIR__ . '/middleware/AdminMiddleware.php';
+require_once __DIR__ . '/utils/carrito.php';
 
 Dotenv::createImmutable(__DIR__ . '/..')->safeLoad();
 
@@ -40,10 +43,9 @@ $carrusel = [
 ];
 
 try {
-  $db = getDB();
-  $categoriasDB = $db->query("SELECT slug, nombre FROM categorias WHERE activo = 1 ORDER BY nombre")->fetchAll();
-  $productosDB = $db->query("SELECT p.id, p.nombre, p.descripcion, p.precio, p.stock, p.imagen, p.material, p.medidas, c.slug AS categoria FROM productos p JOIN categorias c ON c.id = p.categoria_id WHERE p.activo = 1 AND c.activo = 1 ORDER BY p.id")->fetchAll();
-  $carruselDB = $db->query("SELECT titulo, descripcion, imagen, link, orden FROM carrusel WHERE activo = 1 ORDER BY orden, id")->fetchAll();
+  $categoriasDB = fetch_active_categorias();
+  $productosDB = fetch_active_productos();
+  $carruselDB = fetch_active_carrusel();
 
   if ($categoriasDB !== []) {
     $categorias = array_column($categoriasDB, "nombre", "slug");
