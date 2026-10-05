@@ -2,7 +2,7 @@ INSERT INTO usuarios (nombre, email, password_hash, rol, telefono, calle, locali
 VALUES (
   'Administrador',
   'admin@maderasartesanales.test',
-  '$2y$10$2lq9Wtlk43JAyTE5c7cy9.26b5sQSEez9GQz4IGoNn1WJXj4pG6BG',
+  '$2y$10$/hS9h9aj9zvVn.6sgnLl8u22qy.ye6gX0guqQjKPCos95VNWbQIo2',
   'admin',
   '555-0100',
   'Calle Principal 123',
