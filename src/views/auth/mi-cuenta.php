@@ -7,4 +7,8 @@
       <dt class="col-sm-4">Rol</dt><dd class="col-sm-8"><?= html($usuario["rol"] ?? "usuario") ?></dd>
     </dl>
   </div>
+
+  <div class="mt-4">
+    <a href="/mi-cuenta/pedidos" class="btn btn-primary">Ver mis pedidos</a>
+  </div>
 </div>

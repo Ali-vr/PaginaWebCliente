@@ -13,6 +13,29 @@ function show_admin_dashboard($request, $response)
     ]);
 }
 
+function show_admin_pedidos($request, $response)
+{
+    global $render;
+
+    $pedidos = listar_pedidos_admin();
+    return $render($response, "admin/pedidos/index.php", [
+        "title" => "Pedidos | Administración",
+        "pedidos" => $pedidos,
+    ]);
+}
+
+function handle_admin_pedido_estado($request, $response, array $args = [])
+{
+    $id = (int) ($args["id"] ?? 0);
+    $estado = trim((string) ($request->getParsedBody()["estado"] ?? ""));
+
+    if ($id > 0 && $estado !== "") {
+        actualizar_estado_pedido_admin($id, $estado);
+    }
+
+    return $response->withHeader("Location", "/admin/pedidos")->withStatus(302);
+}
+
 function show_admin_productos($request, $response)
 {
     global $render;

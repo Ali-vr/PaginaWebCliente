@@ -22,4 +22,7 @@ $app->group("/admin", function (RouteCollectorProxy $admin) {
   $admin->map(["GET", "POST"], "/carrusel/create", "handle_admin_carrusel_create");
   $admin->map(["GET", "POST"], "/carrusel/{id}/edit", "handle_admin_carrusel_edit");
   $admin->post("/carrusel/{id}/delete", "handle_admin_carrusel_delete");
+
+  $admin->get("/pedidos", "show_admin_pedidos");
+  $admin->post("/pedidos/{id}/estado", "handle_admin_pedido_estado");
 })->add(new AdminMiddleware());

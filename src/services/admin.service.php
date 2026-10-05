@@ -7,6 +7,16 @@ function obtener_estadisticas_admin(): array
     return fetch_admin_counts();
 }
 
+function listar_pedidos_admin(): array
+{
+    return fetch_admin_pedidos();
+}
+
+function actualizar_estado_pedido_admin(int $id, string $estado): void
+{
+    update_pedido_estado_admin($id, $estado);
+}
+
 function listar_productos_admin(): array
 {
     return fetch_admin_productos();

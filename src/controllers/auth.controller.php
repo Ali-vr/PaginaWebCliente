@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../services/auth.service.php";
+require_once __DIR__ . "/../services/admin.service.php";
 
 function show_login_form($request, $response)
 {
@@ -118,5 +119,26 @@ function show_mi_cuenta($request, $response)
     return $render($response, "auth/mi-cuenta.php", [
         "title" => "Mi cuenta | Maderas Artesanales",
         "usuario" => $usuario,
+    ]);
+}
+
+function show_mis_pedidos($request, $response)
+{
+    global $render;
+
+    $usuarioId = (int) ($_SESSION["usuario_id"] ?? 0);
+    $usuario = obtener_usuario_por_id($usuarioId);
+
+    if (!$usuario) {
+        cerrar_sesion_actual();
+        return $response->withHeader("Location", "/login")->withStatus(302);
+    }
+
+    $pedidos = fetch_pedidos_por_usuario($usuarioId);
+
+    return $render($response, "auth/mis-pedidos.php", [
+        "title" => "Mis pedidos | Maderas Artesanales",
+        "usuario" => $usuario,
+        "pedidos" => $pedidos,
     ]);
 }

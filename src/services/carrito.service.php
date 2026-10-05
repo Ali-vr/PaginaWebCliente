@@ -54,22 +54,80 @@ function cantidad_total_carrito(): int
     return (int) array_sum($_SESSION["carrito"] ?? []);
 }
 
-function guardar_ultimo_pedido(array $items, array $datos): void
+function crear_pedido_desde_carrito(array $items, array $datos, ?int $usuarioId = null): array
 {
-    $_SESSION["ultimo_pedido"] = [
+    if (empty($items)) {
+        throw new InvalidArgumentException("El carrito está vacío.");
+    }
+
+    $db = getDB();
+    $metodoPago = in_array(($datos["metodo_pago"] ?? "tarjeta"), ["tarjeta", "mercadopago"], true)
+        ? ($datos["metodo_pago"] ?? "tarjeta")
+        : "tarjeta";
+
+    $numeroPedido = "PED-" . date("Ymd") . "-" . strtoupper(substr(md5((string) uniqid((string) microtime(true), true)), 0, 8));
+    $total = total_carrito($items);
+
+    $stmt = $db->prepare(
+        "INSERT INTO pedidos (usuario_id, numero, total, metodo_pago, estado, nombre_envio, calle_envio, localidad_envio, provincia_envio, cp_envio, telefono_envio) VALUES (:usuario_id, :numero, :total, :metodo_pago, 'pendiente', :nombre_envio, :calle_envio, :localidad_envio, :provincia_envio, :cp_envio, :telefono_envio)"
+    );
+    $stmt->execute([
+        "usuario_id" => $usuarioId,
+        "numero" => $numeroPedido,
+        "total" => number_format($total, 2, ".", ""),
+        "metodo_pago" => $metodoPago,
+        "nombre_envio" => trim((string) ($datos["nombre"] ?? "")),
+        "calle_envio" => trim((string) ($datos["calle"] ?? "")),
+        "localidad_envio" => trim((string) ($datos["localidad"] ?? "")),
+        "provincia_envio" => trim((string) ($datos["provincia"] ?? "")),
+        "cp_envio" => trim((string) ($datos["codigo_postal"] ?? "")),
+        "telefono_envio" => trim((string) ($datos["telefono"] ?? "")),
+    ]);
+
+    $pedidoId = (int) $db->lastInsertId();
+
+    foreach ($items as $item) {
+        $producto = $item["producto"] ?? null;
+        if (!is_array($producto)) {
+            continue;
+        }
+
+        $itemStmt = $db->prepare(
+            "INSERT INTO pedido_items (pedido_id, producto_id, nombre_snapshot, precio_snapshot, cantidad) VALUES (:pedido_id, :producto_id, :nombre_snapshot, :precio_snapshot, :cantidad)"
+        );
+        $itemStmt->execute([
+            "pedido_id" => $pedidoId,
+            "producto_id" => (int) ($producto["id"] ?? 0),
+            "nombre_snapshot" => (string) ($producto["nombre"] ?? ""),
+            "precio_snapshot" => number_format((float) ($producto["precio"] ?? 0), 2, ".", ""),
+            "cantidad" => (int) ($item["cantidad"] ?? 1),
+        ]);
+    }
+
+    $pedido = [
+        "id" => $pedidoId,
         "items" => $items,
-        "total" => total_carrito($items),
-        "metodoPago" => $datos["metodo_pago"] ?? "tarjeta",
+        "total" => $total,
+        "metodoPago" => $metodoPago,
         "direccion" => [
-            "nombre" => $datos["nombre"] ?? "",
-            "calle" => $datos["calle"] ?? "",
-            "localidad" => $datos["localidad"] ?? "",
-            "provincia" => $datos["provincia"] ?? "",
-            "codigoPostal" => $datos["codigo_postal"] ?? "",
-            "telefono" => $datos["telefono"] ?? "",
+            "nombre" => trim((string) ($datos["nombre"] ?? "")),
+            "calle" => trim((string) ($datos["calle"] ?? "")),
+            "localidad" => trim((string) ($datos["localidad"] ?? "")),
+            "provincia" => trim((string) ($datos["provincia"] ?? "")),
+            "codigoPostal" => trim((string) ($datos["codigo_postal"] ?? "")),
+            "telefono" => trim((string) ($datos["telefono"] ?? "")),
         ],
-        "numeroPedido" => strtoupper(substr(uniqid(), -6)),
+        "numeroPedido" => $numeroPedido,
     ];
+
+    $_SESSION["ultimo_pedido"] = $pedido;
+    return $pedido;
+}
+
+function guardar_ultimo_pedido(array $items, array $datos): array
+{
+    $usuarioId = isset($_SESSION["usuario_id"]) ? (int) $_SESSION["usuario_id"] : null;
+    return crear_pedido_desde_carrito($items, $datos, $usuarioId);
 }
 
 function obtener_ultimo_pedido(): ?array

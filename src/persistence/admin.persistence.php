@@ -8,7 +8,38 @@ function fetch_admin_counts(): array
         "productos" => (int) $db->query("SELECT COUNT(*) FROM productos")->fetchColumn(),
         "categorias" => (int) $db->query("SELECT COUNT(*) FROM categorias")->fetchColumn(),
         "carrusel" => (int) $db->query("SELECT COUNT(*) FROM carrusel")->fetchColumn(),
+        "pedidos" => (int) $db->query("SELECT COUNT(*) FROM pedidos")->fetchColumn(),
     ];
+}
+
+function fetch_admin_pedidos(): array
+{
+    $db = getDB();
+
+    return $db->query(
+        "SELECT p.*, u.nombre AS cliente, u.email, COUNT(pi.id) AS items_count, SUM(pi.cantidad) AS unidades_total FROM pedidos p LEFT JOIN usuarios u ON u.id = p.usuario_id LEFT JOIN pedido_items pi ON pi.pedido_id = p.id GROUP BY p.id ORDER BY p.created_at DESC"
+    )->fetchAll();
+}
+
+function update_pedido_estado_admin(int $id, string $estado): void
+{
+    $permitidos = ["pendiente", "confirmado", "en preparacion", "enviado", "entregado", "cancelado"];
+    if (!in_array($estado, $permitidos, true)) {
+        throw new InvalidArgumentException("Estado de pedido inválido.");
+    }
+
+    $stmt = getDB()->prepare("UPDATE pedidos SET estado = :estado WHERE id = :id");
+    $stmt->execute(["id" => $id, "estado" => $estado]);
+}
+
+function fetch_pedidos_por_usuario(int $usuarioId): array
+{
+    $stmt = getDB()->prepare(
+        "SELECT p.*, COUNT(pi.id) AS items_count, SUM(pi.cantidad) AS unidades_total FROM pedidos p LEFT JOIN pedido_items pi ON pi.pedido_id = p.id WHERE p.usuario_id = :usuario_id GROUP BY p.id ORDER BY p.created_at DESC"
+    );
+    $stmt->execute(["usuario_id" => $usuarioId]);
+
+    return $stmt->fetchAll();
 }
 
 function fetch_admin_productos(): array

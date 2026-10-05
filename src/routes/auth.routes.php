@@ -10,3 +10,4 @@ $app->get("/registro", "show_register_form");
 $app->post("/registro", "handle_register");
 $app->get("/logout", "handle_logout");
 $app->get("/mi-cuenta", "show_mi_cuenta")->add(new AuthMiddleware());
+$app->get("/mi-cuenta/pedidos", "show_mis_pedidos")->add(new AuthMiddleware());
