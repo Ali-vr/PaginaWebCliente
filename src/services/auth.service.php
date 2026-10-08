@@ -90,3 +90,34 @@ function cerrar_sesion_actual(): void
     $_SESSION = [];
     session_destroy();
 }
+
+function procesarSolicitudRecuperacion($email) {
+    // 1. Verificar si el usuario existe (utilizando tu método actual)
+    $usuario = $this->authPersistence->getUserByEmail($email); 
+    
+    if ($usuario) {
+        // 2. Generar un token único y seguro
+        $token = bin2hex(random_bytes(32));
+        // 3. Establecer expiración (ej. 1 hora a partir de ahora)
+        $expiracion = date('Y-m-d H:i:s', strtotime('+1 hour'));
+        
+        // 4. Guardar en base de datos
+        $this->authPersistence->guardarTokenRecuperacion($email, $token, $expiracion);
+        
+        // 5. Construir y enviar el correo
+        // Nota: Asegúrate de cambiar 'tusitio.com' por el dominio real de tu web
+        $enlace = "http://tusitio.com/restablecer-contrasena?token=" . $token;
+        
+        $asunto = "Recuperación de Contraseña";
+        $mensaje = "Has solicitado recuperar tu contraseña. Haz clic en el siguiente enlace para restablecerla:\n\n" . $enlace;
+        $cabeceras = "From: noreply@tusitio.com\r\n" .
+                     "Reply-To: noreply@tusitio.com\r\n" .
+                     "X-Mailer: PHP/" . phpversion();
+                     
+        return mail($email, $asunto, $mensaje, $cabeceras);
+    }
+    
+    // Por seguridad, siempre retorna true o un mensaje genérico 
+    // para no revelar qué correos existen en tu base de datos.
+    return true; 
+}

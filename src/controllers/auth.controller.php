@@ -142,3 +142,20 @@ function show_mis_pedidos($request, $response)
         "pedidos" => $pedidos,
     ]);
 }
+
+function recuperarPassword() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $email = trim($_POST['email'] ?? '');
+        
+        if (!empty($email)) {
+            $this->authService->procesarSolicitudRecuperacion($email);
+            // Redirigir a una vista de éxito independientemente de si el correo existe o no
+            $_SESSION['mensaje'] = "Si el correo existe, hemos enviado un enlace de recuperación.";
+            header('Location: /login');
+            exit;
+        }
+    }
+    
+    // Si la petición es GET, mostrar la vista del formulario
+    require_once __DIR__ . '/../views/auth/recuperar-contrasena.php';
+}

@@ -27,3 +27,22 @@ function create_user(string $nombre, string $email, string $passwordHash): void
         "password_hash" => $passwordHash,
     ]);
 }
+
+// Guardar el token generado para el usuario
+function guardarTokenRecuperacion($email, $token, $expiracion) {
+    $sql = "UPDATE usuarios SET reset_token = :token, reset_token_expires_at = :expiracion WHERE email = :email";
+    $stmt = getDB()->prepare($sql);
+    return $stmt->execute([
+        'token' => $token,
+        'expiracion' => $expiracion,
+        'email' => $email
+    ]);
+}
+
+// Verificar que el token sea válido y no haya expirado
+function verificarTokenValido($token) {
+    $sql = "SELECT id, email FROM usuarios WHERE reset_token = :token AND reset_token_expires_at > NOW()";
+    $stmt = getDB()->prepare($sql);
+    $stmt->execute(['token' => $token]);
+    return $stmt->fetch();
+}

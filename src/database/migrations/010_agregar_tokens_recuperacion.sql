@@ -1,0 +1,3 @@
+ALTER TABLE usuarios 
+ADD COLUMN reset_token VARCHAR(255) DEFAULT NULL,
+ADD COLUMN reset_token_expires_at DATETIME DEFAULT NULL;
