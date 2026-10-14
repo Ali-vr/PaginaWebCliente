@@ -90,3 +90,97 @@ function cerrar_sesion_actual(): void
     $_SESSION = [];
     session_destroy();
 }
+
+function solicitar_recuperacion_contrasena(string $email): void
+{
+    $apiKey = trim((string) ($_ENV["RESEND_API_KEY"] ?? ""));
+    $sender = trim((string) ($_ENV["MAIL_FROM"] ?? ""));
+    $appUrl = rtrim(trim((string) ($_ENV["APP_URL"] ?? "")), "/");
+    $scheme = strtolower((string) parse_url($appUrl, PHP_URL_SCHEME));
+
+    if (
+        $apiKey === ""
+        || $sender === ""
+        || !filter_var($appUrl, FILTER_VALIDATE_URL)
+        || !in_array($scheme, ["http", "https"], true)
+    ) {
+        throw new RuntimeException("La configuración del correo para recuperar contraseñas está incompleta.");
+    }
+
+    $usuario = find_user_by_email($email);
+    if ($usuario === null) {
+        return;
+    }
+
+    $token = bin2hex(random_bytes(32));
+    $tokenHash = hash("sha256", $token);
+    save_password_reset_token((int) $usuario["id"], $tokenHash);
+
+    $resetUrl = $appUrl . "/restablecer-contrasena?token=" . urlencode($token);
+    $escapedResetUrl = htmlspecialchars($resetUrl, ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
+
+    try {
+        $resend = \Resend\Resend::client($apiKey);
+        $resend->emails->send([
+            "from" => $sender,
+            "to" => [$email],
+            "subject" => "Restablecer contraseña",
+            "html" => "<p>Recibimos una solicitud para restablecer tu contraseña.</p>"
+                . "<p><a href=\"{$escapedResetUrl}\">Crear una nueva contraseña</a></p>"
+                . "<p>El enlace vence en una hora. Si no solicitaste este cambio, ignora este correo.</p>",
+            "text" => "Recibimos una solicitud para restablecer tu contraseña.\n\n"
+                . "Abrí este enlace para crear una nueva contraseña (vence en una hora):\n"
+                . $resetUrl
+                . "\n\nSi no solicitaste este cambio, ignora este correo.",
+        ]);
+    } catch (Throwable $exception) {
+        clear_password_reset_token((int) $usuario["id"], $tokenHash);
+        throw $exception;
+    }
+}
+
+function validar_token_recuperacion(string $token): bool
+{
+    if (strlen($token) !== 64 || !ctype_xdigit($token)) {
+        return false;
+    }
+
+    return password_reset_token_exists(hash("sha256", $token));
+}
+
+function validar_nueva_contrasena(array $datos): array
+{
+    $password = (string) ($datos["password"] ?? "");
+    $confirmacion = (string) ($datos["password_confirmation"] ?? "");
+
+    if (strlen($password) < 8) {
+        return [
+            "valid" => false,
+            "error" => "La contraseña debe tener al menos 8 caracteres.",
+        ];
+    }
+
+    if ($password !== $confirmacion) {
+        return [
+            "valid" => false,
+            "error" => "Las contraseñas no coinciden.",
+        ];
+    }
+
+    return [
+        "valid" => true,
+        "password" => $password,
+    ];
+}
+
+function restablecer_contrasena(string $token, string $password): bool
+{
+    if (!validar_token_recuperacion($token)) {
+        return false;
+    }
+
+    return update_password_with_reset_token(
+        hash("sha256", $token),
+        password_hash($password, PASSWORD_DEFAULT),
+    );
+}

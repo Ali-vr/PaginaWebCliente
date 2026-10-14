@@ -11,8 +11,12 @@ function show_login_form($request, $response)
         return $response->withHeader("Location", "/mi-cuenta")->withStatus(302);
     }
 
+    $success = $_SESSION["flash_auth"]["success"] ?? null;
+    unset($_SESSION["flash_auth"]);
+
     return $render($response, "auth/login.php", [
         "title" => "Iniciar sesión | Maderas Artesanales",
+        "success" => $success,
     ]);
 }
 
@@ -141,4 +145,91 @@ function show_mis_pedidos($request, $response)
         "usuario" => $usuario,
         "pedidos" => $pedidos,
     ]);
+}
+
+function show_recuperar_contrasena($request, $response)
+{
+    global $render;
+
+    return $render($response, "auth/recuperar-contrasena.php", [
+        "title" => "Recuperar contraseña | Maderas Artesanales",
+    ]);
+}
+
+function handle_solicitud_recuperacion($request, $response)
+{
+    global $render;
+
+    $datos = (array) ($request->getParsedBody() ?? []);
+    $email = strtolower(trim((string) ($datos["email"] ?? "")));
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return $render($response->withStatus(422), "auth/recuperar-contrasena.php", [
+            "title" => "Recuperar contraseña | Maderas Artesanales",
+            "error" => "Ingresá un email válido.",
+            "email" => $email,
+        ]);
+    }
+
+    solicitar_recuperacion_contrasena($email);
+    $_SESSION["flash_auth"] = [
+        "success" => "Si el correo está registrado, recibirás un enlace para recuperar tu contraseña.",
+    ];
+
+    return $response->withHeader("Location", "/login")->withStatus(302);
+}
+
+function show_restablecer_contrasena($request, $response)
+{
+    global $render;
+
+    $params = $request->getQueryParams();
+    $token = (string) ($params["token"] ?? "");
+    $tokenValido = validar_token_recuperacion($token);
+
+    return $render($response->withStatus($tokenValido ? 200 : 400), "auth/restablecer-contrasena.php", [
+        "title" => "Restablecer contraseña | Maderas Artesanales",
+        "token" => $token,
+        "tokenValido" => $tokenValido,
+    ]);
+}
+
+function handle_restablecer_contrasena($request, $response)
+{
+    global $render;
+
+    $datos = (array) ($request->getParsedBody() ?? []);
+    $token = (string) ($datos["token"] ?? "");
+
+    if (!validar_token_recuperacion($token)) {
+        return $render($response->withStatus(400), "auth/restablecer-contrasena.php", [
+            "title" => "Restablecer contraseña | Maderas Artesanales",
+            "tokenValido" => false,
+            "error" => "El enlace no es válido o ya venció. Solicitá uno nuevo.",
+        ]);
+    }
+
+    $resultado = validar_nueva_contrasena($datos);
+    if (!$resultado["valid"]) {
+        return $render($response->withStatus(422), "auth/restablecer-contrasena.php", [
+            "title" => "Restablecer contraseña | Maderas Artesanales",
+            "token" => $token,
+            "tokenValido" => true,
+            "error" => $resultado["error"],
+        ]);
+    }
+
+    if (!restablecer_contrasena($token, $resultado["password"])) {
+        return $render($response->withStatus(400), "auth/restablecer-contrasena.php", [
+            "title" => "Restablecer contraseña | Maderas Artesanales",
+            "tokenValido" => false,
+            "error" => "El enlace no es válido o ya venció. Solicitá uno nuevo.",
+        ]);
+    }
+
+    $_SESSION["flash_auth"] = [
+        "success" => "Tu contraseña se actualizó. Ya podés iniciar sesión.",
+    ];
+
+    return $response->withHeader("Location", "/login")->withStatus(302);
 }
