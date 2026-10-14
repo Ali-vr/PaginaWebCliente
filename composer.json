@@ -1,5 +1,6 @@
 {
   "name": "pdi-eest4/slim-template-2026",
+  "description": "Tienda online de productos artesanales de madera con catálogo, carrito y panel de administración.",
   "type": "project",
   "require": {
     "php": ">=8.1",
