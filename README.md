@@ -37,6 +37,32 @@ Colocá tus archivos `.sql` en `src/database/migrations/` y ejecuta:
 composer migrate
 ```
 
+## Recuperación de contraseña
+
+La recuperación requiere configurar `APP_URL`, `RESEND_API_KEY` y `MAIL_FROM` en `.env`.
+`APP_URL` debe ser la URL pública de la aplicación y `MAIL_FROM` un remitente verificado
+en Resend. Luego ejecutá `composer migrate` para agregar los campos de tokens a `usuarios`.
+
+## Imágenes del panel de administración
+
+Desde los formularios de productos y carrusel se pueden subir imágenes JPG, PNG, WebP o GIF
+de hasta 5 MB. Se guardan en `public/uploads/` con nombres generados por el servidor; esa
+carpeta no se incluye en Git y debe conservarse al desplegar o respaldarse. Las categorías no
+tienen una imagen asociada.
+
+El borrado definitivo está separado de la desactivación: no se puede borrar un producto que
+figure en pedidos ni una categoría que todavía tenga productos vinculados.
+
+## Solicitudes de productos personalizados
+
+Los clientes registrados pueden enviar desde **Mi cuenta** una descripción y un archivo PDF,
+JPG o PNG de hasta 10 MB. Los adjuntos se guardan fuera del directorio público en
+`storage/personalizaciones/`; respaldá esa carpeta junto con la base de datos. El administrador
+puede revisar la solicitud y aceptarla con un presupuesto estimado o rechazarla con un mensaje.
+La respuesta se envía al email de la cuenta usando la configuración Resend (`RESEND_API_KEY` y
+`MAIL_FROM`). Asegurate de que el usuario de PHP pueda escribir en `storage/personalizaciones/`.
+Ejecutá `composer migrate` para crear la tabla de solicitudes.
+
 ## Licencia
 
 Este proyecto está licenciado bajo la [Licencia MIT](./LICENSE).
