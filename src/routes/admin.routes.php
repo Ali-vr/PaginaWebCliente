@@ -4,6 +4,7 @@ use App\Middleware\AdminMiddleware;
 use Slim\Routing\RouteCollectorProxy;
 
 require_once __DIR__ . "/../controllers/admin.controller.php";
+require_once __DIR__ . "/../controllers/personalizacion.controller.php";
 
 $app->group("/admin", function (RouteCollectorProxy $admin) {
   $admin->get("", "show_admin_dashboard");

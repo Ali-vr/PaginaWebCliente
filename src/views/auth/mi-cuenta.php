@@ -10,5 +10,7 @@
 
   <div class="mt-4">
     <a href="/mi-cuenta/pedidos" class="btn btn-primary">Ver mis pedidos</a>
+    <a href="/personalizacion" class="btn btn-outline-primary">Solicitar un producto a medida</a>
+    <a href="/mi-cuenta/personalizaciones" class="btn btn-outline-secondary">Mis solicitudes</a>
   </div>
 </div>

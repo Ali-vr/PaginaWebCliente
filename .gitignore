@@ -12,6 +12,8 @@
 # Cache / temp files
 /tmp/
 /cache/
+/public/uploads/
+/storage/personalizaciones/
 
 # OS files
 .DS_Store

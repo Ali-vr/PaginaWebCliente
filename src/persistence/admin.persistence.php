@@ -9,6 +9,7 @@ function fetch_admin_counts(): array
         "categorias" => (int) $db->query("SELECT COUNT(*) FROM categorias")->fetchColumn(),
         "carrusel" => (int) $db->query("SELECT COUNT(*) FROM carrusel")->fetchColumn(),
         "pedidos" => (int) $db->query("SELECT COUNT(*) FROM pedidos")->fetchColumn(),
+        "personalizaciones" => (int) $db->query("SELECT COUNT(*) FROM solicitudes_personalizacion")->fetchColumn(),
     ];
 }
 

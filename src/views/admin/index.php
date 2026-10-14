@@ -5,5 +5,6 @@
     <div class="col-md-3"><a class="card p-4 h-100 text-decoration-none text-reset" href="/admin/categorias"><h2 class="h4">Categorías</h2><p class="mb-0"><?= (int) $counts["categorias"] ?> registros</p></a></div>
     <div class="col-md-3"><a class="card p-4 h-100 text-decoration-none text-reset" href="/admin/carrusel"><h2 class="h4">Carrusel</h2><p class="mb-0"><?= (int) $counts["carrusel"] ?> registros</p></a></div>
     <div class="col-md-3"><a class="card p-4 h-100 text-decoration-none text-reset" href="/admin/pedidos"><h2 class="h4">Pedidos</h2><p class="mb-0"><?= (int) $counts["pedidos"] ?> registros</p></a></div>
+    <div class="col-md-3"><a class="card p-4 h-100 text-decoration-none text-reset" href="/admin/personalizaciones"><h2 class="h4">Personalizaciones</h2><p class="mb-0"><?= (int) $counts["personalizaciones"] ?> solicitudes</p></a></div>
   </div>
 </div>

@@ -81,6 +81,7 @@ require __DIR__ . "/routes/catalogo.routes.php";
 require __DIR__ . "/routes/buscador.routes.php";
 require __DIR__ . "/routes/carrito.routes.php";
 require __DIR__ . "/routes/auth.routes.php";
+require __DIR__ . "/routes/personalizacion.routes.php";
 require __DIR__ . "/routes/contacto.routes.php";
 require __DIR__ . "/routes/admin.routes.php";
 
