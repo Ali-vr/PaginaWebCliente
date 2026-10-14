@@ -111,6 +111,23 @@ function soft_delete_product_admin(int $id): void
     $stmt->execute(["id" => $id]);
 }
 
+function delete_product_if_unreferenced_admin(int $id): bool
+{
+    $stmt = getDB()->prepare(
+        "DELETE FROM productos
+         WHERE id = :id
+           AND NOT EXISTS (SELECT 1 FROM pedido_items WHERE producto_id = :pedido_producto_id)
+           AND NOT EXISTS (SELECT 1 FROM detalle_pedido WHERE producto_id = :detalle_producto_id)",
+    );
+    $stmt->execute([
+        "id" => $id,
+        "pedido_producto_id" => $id,
+        "detalle_producto_id" => $id,
+    ]);
+
+    return $stmt->rowCount() === 1;
+}
+
 function fetch_categoria_by_id_admin(int $id): ?array
 {
     $stmt = getDB()->prepare("SELECT * FROM categorias WHERE id = :id");
@@ -142,6 +159,21 @@ function soft_delete_categoria_admin(int $id): void
 {
     $stmt = getDB()->prepare("UPDATE categorias SET activo = 0 WHERE id = :id");
     $stmt->execute(["id" => $id]);
+}
+
+function delete_categoria_if_without_products_admin(int $id): bool
+{
+    $stmt = getDB()->prepare(
+        "DELETE FROM categorias
+         WHERE id = :id
+           AND NOT EXISTS (SELECT 1 FROM productos WHERE categoria_id = :producto_categoria_id)",
+    );
+    $stmt->execute([
+        "id" => $id,
+        "producto_categoria_id" => $id,
+    ]);
+
+    return $stmt->rowCount() === 1;
 }
 
 function fetch_carrusel_by_id_admin(int $id): ?array
