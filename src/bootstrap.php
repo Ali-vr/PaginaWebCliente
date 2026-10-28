@@ -77,6 +77,7 @@ $render = function (
 
 // Rutas separadas por funcionalidad. Se cargan en el mismo alcance para
 // reutilizar $app, $render, $categorias y $productos.
+$router = $app; // <--- Añade esto para que las rutas puedan usar la instancia global del enrutador
 require __DIR__ . "/routes/catalogo.routes.php";
 require __DIR__ . "/routes/buscador.routes.php";
 require __DIR__ . "/routes/carrito.routes.php";

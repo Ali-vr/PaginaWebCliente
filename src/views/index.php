@@ -1,3 +1,4 @@
+
 <div id="carruselOfertas" class="carousel slide mb-5" data-bs-ride="carousel">
   <div class="carousel-indicators">
     <?php foreach ($carrusel as $indice => $slide): ?><button type="button" data-bs-target="#carruselOfertas" data-bs-slide-to="<?= (int) $indice ?>" class="<?= $indice === 0 ? "active" : "" ?>"></button><?php endforeach; ?>

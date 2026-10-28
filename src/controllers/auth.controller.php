@@ -105,8 +105,42 @@ function handle_register($request, $response)
 
 function handle_logout($request, $response)
 {
-    cerrar_sesion_actual();
-    return $response->withHeader("Location", "/")->withStatus(302);
+    // 1. Asegurar que la sesión esté iniciada
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    // 2. Limpiar todas las variables de sesión
+    $_SESSION = [];
+
+    // 3. Eliminar la cookie de sesión del navegador si existe
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(
+            session_name(), 
+            '', 
+            time() - 42000,
+            $params["path"], 
+            $params["domain"],
+            $params["secure"], 
+            $params["httponly"]
+        );
+    }
+
+    // 4. Destruir la sesión en el servidor
+    if (function_exists('cerrar_sesion_actual')) {
+        cerrar_sesion_actual();
+    } else {
+        session_destroy();
+    }
+
+    // 5. Aplicar cabeceras anti-caché para impedir que el botón "Atrás" muestre datos protegidos
+    $response = $response
+        ->withHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+        ->withHeader("Pragma", "no-cache");
+
+    // 6. Redirigir de manera segura a la pantalla de inicio de sesión
+    return $response->withHeader("Location", "/login")->withStatus(302);
 }
 
 function show_mi_cuenta($request, $response)
