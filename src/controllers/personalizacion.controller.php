@@ -157,25 +157,9 @@ function handle_respuesta_solicitud_personalizacion_admin($request, $response, a
 
     try {
         responder_solicitud_personalizacion_admin($id, $datos);
-        $_SESSION["flash_admin_personalizacion"] = "La respuesta se guardó y se notificó al cliente.";
+        $_SESSION["flash_admin_personalizacion"] = "La decisión y la respuesta quedaron guardadas.";
         unset($_SESSION["error_admin_personalizacion"]);
     } catch (InvalidArgumentException | RuntimeException $exception) {
-        $_SESSION["error_admin_personalizacion"] = $exception->getMessage();
-    }
-
-    return $response
-        ->withHeader("Location", "/admin/personalizaciones/" . $id)
-        ->withStatus(302);
-}
-
-function handle_reintento_notificacion_personalizacion_admin($request, $response, array $args = [])
-{
-    $id = (int) ($args["id"] ?? 0);
-    try {
-        reenviar_notificacion_solicitud_personalizacion_admin($id);
-        $_SESSION["flash_admin_personalizacion"] = "La notificación se envió al cliente.";
-        unset($_SESSION["error_admin_personalizacion"]);
-    } catch (RuntimeException $exception) {
         $_SESSION["error_admin_personalizacion"] = $exception->getMessage();
     }
 

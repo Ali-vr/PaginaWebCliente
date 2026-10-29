@@ -22,7 +22,7 @@ function fetch_solicitudes_personalizacion_usuario(int $usuarioId): array
 {
     $stmt = getDB()->prepare(
         "SELECT id, descripcion, archivo_nombre, archivo_mime, estado, presupuesto, respuesta,
-                respondida_en, notificacion_enviada_en, created_at
+                respondida_en, created_at
          FROM solicitudes_personalizacion
          WHERE usuario_id = :usuario_id
          ORDER BY created_at DESC, id DESC",
@@ -36,7 +36,7 @@ function fetch_solicitudes_personalizacion_admin(): array
 {
     return getDB()->query(
         "SELECT s.id, s.descripcion, s.archivo_nombre, s.archivo_mime, s.estado,
-                s.presupuesto, s.respuesta, s.respondida_en, s.notificacion_enviada_en, s.created_at,
+                s.presupuesto, s.respuesta, s.respondida_en, s.created_at,
                 u.nombre AS cliente_nombre, u.email AS cliente_email
          FROM solicitudes_personalizacion s
          JOIN usuarios u ON u.id = s.usuario_id
@@ -98,14 +98,4 @@ function update_solicitud_personalizacion_respuesta(
     ]);
 
     return $stmt->rowCount() === 1;
-}
-
-function mark_solicitud_personalizacion_notificada(int $id): void
-{
-    $stmt = getDB()->prepare(
-        "UPDATE solicitudes_personalizacion
-         SET notificacion_enviada_en = NOW()
-         WHERE id = :id AND estado IN ('aceptada', 'rechazada')",
-    );
-    $stmt->execute(["id" => $id]);
 }
