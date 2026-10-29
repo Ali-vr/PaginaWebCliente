@@ -58,7 +58,7 @@ function handle_solicitud_personalizacion($request, $response)
 
     $_SESSION["flash_personalizacion"] = "Tu solicitud fue enviada, te contactaremos pronto";
 
-    return $response->withHeader("Location", "/mi-cuenta/personalizaciones")->withStatus(302);
+    return $response->withHeader("Location", "/#mi-cuenta")->withStatus(302);
 }
 
 function show_solicitudes_personalizacion_cliente($request, $response)

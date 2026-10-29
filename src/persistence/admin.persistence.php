@@ -36,7 +36,13 @@ function update_pedido_estado_admin(int $id, string $estado): void
 function fetch_pedidos_por_usuario(int $usuarioId): array
 {
     $stmt = getDB()->prepare(
-        "SELECT p.*, COUNT(pi.id) AS items_count, SUM(pi.cantidad) AS unidades_total FROM pedidos p LEFT JOIN pedido_items pi ON pi.pedido_id = p.id WHERE p.usuario_id = :usuario_id GROUP BY p.id ORDER BY p.created_at DESC"
+        "SELECT p.*, COUNT(pi.id) AS items_count, SUM(pi.cantidad) AS unidades_total,
+                GROUP_CONCAT(CONCAT(pi.nombre_snapshot, ' × ', pi.cantidad)) AS productos_resumen
+         FROM pedidos p
+         LEFT JOIN pedido_items pi ON pi.pedido_id = p.id
+         WHERE p.usuario_id = :usuario_id
+         GROUP BY p.id
+         ORDER BY p.created_at DESC",
     );
     $stmt->execute(["usuario_id" => $usuarioId]);
 

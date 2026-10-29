@@ -1,7 +1,7 @@
 <div class="container my-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0">Mis pedidos</h1>
-    <a href="/mi-cuenta" class="btn btn-outline-secondary">Volver a mi cuenta</a>
+    <a href="/#mi-cuenta" class="btn btn-outline-secondary">Volver a mi cuenta</a>
   </div>
 
   <?php if (empty($pedidos)): ?>
