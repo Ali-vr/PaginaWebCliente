@@ -1,6 +1,9 @@
 <?php
 
 require_once __DIR__ . "/../persistence/auth.persistence.php";
+require_once __DIR__ . "/../persistence/admin.persistence.php";
+require_once __DIR__ . "/email.service.php";
+require_once __DIR__ . "/personalizacion.service.php";
 
 function validar_login(array $datos): array
 {
@@ -88,18 +91,77 @@ function obtener_usuario_por_id(int $id): ?array
 function cerrar_sesion_actual(): void
 {
     $_SESSION = [];
+
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        return;
+    }
+
+    $cookieParams = session_get_cookie_params();
+    if (ini_get("session.use_cookies")) {
+        setcookie(session_name(), "", [
+            "expires" => time() - 42000,
+            "path" => $cookieParams["path"],
+            "domain" => $cookieParams["domain"],
+            "secure" => $cookieParams["secure"],
+            "httponly" => $cookieParams["httponly"],
+            "samesite" => $cookieParams["samesite"] ?? "Lax",
+        ]);
+    }
+
     session_destroy();
+}
+
+function obtener_datos_panel_cuenta(int $usuarioId): ?array
+{
+    $usuario = find_user_by_id($usuarioId);
+    if ($usuario === null) {
+        return null;
+    }
+
+    $pedidos = array_map(
+        static fn (array $pedido): array => [
+            "numero" => (string) $pedido["numero"],
+            "created_at" => (string) $pedido["created_at"],
+            "total" => (float) $pedido["total"],
+            "estado" => (string) $pedido["estado"],
+            "productos_resumen" => (string) ($pedido["productos_resumen"] ?? ""),
+            "items_count" => (int) ($pedido["items_count"] ?? 0),
+        ],
+        fetch_pedidos_por_usuario($usuarioId),
+    );
+
+    $solicitudes = array_map(
+        static fn (array $solicitud): array => [
+            "id" => (int) $solicitud["id"],
+            "descripcion" => (string) $solicitud["descripcion"],
+            "archivo_nombre" => (string) $solicitud["archivo_nombre"],
+            "estado" => (string) $solicitud["estado"],
+            "presupuesto" => $solicitud["presupuesto"] === null ? null : (float) $solicitud["presupuesto"],
+            "respuesta" => (string) ($solicitud["respuesta"] ?? ""),
+            "created_at" => (string) $solicitud["created_at"],
+        ],
+        listar_solicitudes_personalizacion_cliente($usuarioId),
+    );
+
+    return [
+        "usuario" => [
+            "nombre" => (string) $usuario["nombre"],
+            "email" => (string) $usuario["email"],
+        ],
+        "pedidos" => $pedidos,
+        "solicitudes" => $solicitudes,
+    ];
 }
 
 function solicitar_recuperacion_contrasena(string $email): void
 {
-    $apiKey = trim((string) ($_ENV["RESEND_API_KEY"] ?? ""));
-    $sender = trim((string) ($_ENV["MAIL_FROM"] ?? ""));
+    $resend = obtener_resend_client();
+    $sender = obtener_resend_from_email();
     $appUrl = rtrim(trim((string) ($_ENV["APP_URL"] ?? "")), "/");
     $scheme = strtolower((string) parse_url($appUrl, PHP_URL_SCHEME));
 
     if (
-        $apiKey === ""
+        $resend === null
         || $sender === ""
         || !filter_var($appUrl, FILTER_VALIDATE_URL)
         || !in_array($scheme, ["http", "https"], true)
@@ -120,7 +182,6 @@ function solicitar_recuperacion_contrasena(string $email): void
     $escapedResetUrl = htmlspecialchars($resetUrl, ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
 
     try {
-        $resend = \Resend\Resend::client($apiKey);
         $resend->emails->send([
             "from" => $sender,
             "to" => [$email],

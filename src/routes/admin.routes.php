@@ -33,5 +33,4 @@ $app->group("/admin", function (RouteCollectorProxy $admin) {
   $admin->get("/personalizaciones/{id}", "show_admin_solicitud_personalizacion");
   $admin->get("/personalizaciones/{id}/archivo", "show_archivo_solicitud_personalizacion_admin");
   $admin->post("/personalizaciones/{id}/respuesta", "handle_respuesta_solicitud_personalizacion_admin");
-  $admin->post("/personalizaciones/{id}/notificar", "handle_reintento_notificacion_personalizacion_admin");
 })->add(new AdminMiddleware());

@@ -8,7 +8,7 @@ function show_login_form($request, $response)
     global $render;
 
     if (!empty($_SESSION["usuario_id"])) {
-        return $response->withHeader("Location", "/mi-cuenta")->withStatus(302);
+        return $response->withHeader("Location", "/#mi-cuenta")->withStatus(302);
     }
 
     $success = $_SESSION["flash_auth"]["success"] ?? null;
@@ -53,7 +53,7 @@ function handle_login($request, $response)
         "rol" => $usuario["rol"],
     ];
 
-    return $response->withHeader("Location", "/mi-cuenta")->withStatus(302);
+    return $response->withHeader("Location", "/#mi-cuenta")->withStatus(302);
 }
 
 function show_register_form($request, $response)
@@ -61,7 +61,7 @@ function show_register_form($request, $response)
     global $render;
 
     if (!empty($_SESSION["usuario_id"])) {
-        return $response->withHeader("Location", "/mi-cuenta")->withStatus(302);
+        return $response->withHeader("Location", "/#mi-cuenta")->withStatus(302);
     }
 
     return $render($response, "auth/registro.php", [
@@ -111,19 +111,47 @@ function handle_logout($request, $response)
 
 function show_mi_cuenta($request, $response)
 {
-    global $render;
-
-    $usuario = obtener_usuario_por_id((int) ($_SESSION["usuario_id"] ?? 0));
-
-    if (!$usuario) {
-        cerrar_sesion_actual();
+    if (empty($_SESSION["usuario_id"])) {
         return $response->withHeader("Location", "/login")->withStatus(302);
     }
 
-    return $render($response, "auth/mi-cuenta.php", [
-        "title" => "Mi cuenta | Maderas Artesanales",
-        "usuario" => $usuario,
-    ]);
+    return $response->withHeader("Location", "/#mi-cuenta")->withStatus(302);
+}
+
+function show_datos_panel_cuenta($request, $response)
+{
+    $usuarioId = (int) ($_SESSION["usuario_id"] ?? 0);
+
+    try {
+        $datos = obtener_datos_panel_cuenta($usuarioId);
+    } catch (Throwable $exception) {
+        error_log("No se pudieron cargar los datos del panel de cuenta (" . get_class($exception) . ").");
+        $response = $response
+            ->withHeader("Content-Type", "application/json; charset=utf-8")
+            ->withStatus(500);
+        $response->getBody()->write(json_encode([
+            "error" => "No se pudieron cargar los datos de la cuenta. Intentá de nuevo más tarde.",
+        ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE));
+        return $response;
+    }
+
+    if ($datos === null) {
+        cerrar_sesion_actual();
+        $response = $response
+            ->withHeader("Content-Type", "application/json; charset=utf-8")
+            ->withStatus(401);
+        $response->getBody()->write(json_encode([
+            "error" => "La sesión ya no es válida. Iniciá sesión nuevamente.",
+        ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE));
+        return $response;
+    }
+
+    $response = $response->withHeader("Content-Type", "application/json; charset=utf-8");
+    $response->getBody()->write(json_encode(
+        $datos,
+        JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE,
+    ));
+    return $response;
 }
 
 function show_mis_pedidos($request, $response)
