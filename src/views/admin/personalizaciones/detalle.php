@@ -38,7 +38,7 @@
             <label for="respuesta" class="form-label">Mensaje para el cliente</label>
             <textarea class="form-control" id="respuesta" name="respuesta" rows="4" required></textarea>
           </div>
-          <button class="btn btn-primary" type="submit">Guardar y notificar al cliente</button>
+          <button class="btn btn-primary" type="submit">Guardar decisión</button>
         </form>
       </div>
     </section>
@@ -46,17 +46,9 @@
     <section class="card">
       <div class="card-body">
         <?php if ($solicitud["estado"] === "aceptada"): ?><p class="fw-semibold">Presupuesto estimado: $<?= number_format((float) $solicitud["presupuesto"], 2, ",", ".") ?></p><?php endif; ?>
-        <h2 class="h5">Respuesta enviada</h2>
+        <h2 class="h5">Respuesta guardada</h2>
         <p><?= nl2br(html((string) $solicitud["respuesta"])) ?></p>
         <p class="small text-muted">Respondida <?= html((string) $solicitud["respondida_en"]) ?></p>
-        <?php if ($solicitud["notificacion_enviada_en"] === null): ?>
-          <p class="text-warning">La notificación todavía no se pudo confirmar como enviada.</p>
-          <form method="post" action="/admin/personalizaciones/<?= (int) $solicitud["id"] ?>/notificar">
-            <button class="btn btn-outline-primary" type="submit">Reintentar notificación por correo</button>
-          </form>
-        <?php else: ?>
-          <p class="small text-success mb-0">Notificación enviada <?= html((string) $solicitud["notificacion_enviada_en"]) ?></p>
-        <?php endif; ?>
       </div>
     </section>
   <?php endif; ?>

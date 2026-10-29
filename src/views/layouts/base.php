@@ -32,15 +32,15 @@
           </form>
 
           <div class="navbar-acciones d-flex align-items-center gap-3 ms-lg-3">
-            <a href="/contacto" class="nav-link-accion">Contacto</a>
             <?php if (!empty($_SESSION["usuario_id"])): ?>
-              <a href="/mi-cuenta" class="nav-link-accion nav-link-cuenta" aria-label="Mi cuenta">
+              <button type="button" class="nav-link-accion nav-link-cuenta account-panel-trigger" aria-label="Abrir mi cuenta" aria-controls="panelMiCuenta" aria-expanded="false">
                 <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.025 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/></svg>
                 <span class="nav-link-cuenta-label">Mi cuenta</span>
-              </a>
+              </button>
+              <a href="/contacto" class="nav-link-accion">Contacto</a>
               <?php if (($_SESSION["usuario"]["rol"] ?? "usuario") === "admin"): ?><a href="/admin" class="nav-link-accion">Admin</a><?php endif; ?>
-              <a href="/logout" class="nav-link-accion">Salir</a>
             <?php else: ?>
+              <a href="/contacto" class="nav-link-accion">Contacto</a>
               <a href="/login" class="nav-link-accion nav-link-cuenta" aria-label="Iniciar sesión">
                 <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.025 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/></svg>
                 <span class="nav-link-cuenta-label">Ingresar</span>
@@ -58,6 +58,42 @@
 
     <!-- CONTENIDO PRINCIPAL -->
     <main><?= $content ?? "" ?></main>
+
+    <?php if (!empty($_SESSION["usuario_id"])): ?>
+      <div class="account-panel-shell" id="accountPanelShell" aria-hidden="true" inert>
+        <button type="button" class="account-panel-backdrop" data-account-close tabindex="-1" aria-label="Cerrar panel de mi cuenta"></button>
+        <aside class="account-panel" id="panelMiCuenta" role="dialog" aria-modal="true" aria-labelledby="accountPanelTitle" tabindex="-1">
+          <div class="account-panel-header">
+            <div>
+              <p class="account-panel-eyebrow">Maderas Artesanales</p>
+              <h2 class="account-panel-title" id="accountPanelTitle">Mi cuenta</h2>
+            </div>
+            <button type="button" class="account-panel-close" data-account-close aria-label="Cerrar panel">×</button>
+          </div>
+          <div class="account-panel-content" id="accountPanelContent" aria-live="polite">
+            <section class="account-panel-profile">
+              <p class="account-panel-greeting">Hola, <strong id="accountUserName"><?= html((string) ($_SESSION["usuario"]["nombre"] ?? "")) ?></strong></p>
+              <p class="account-panel-email" id="accountUserEmail"><?= html((string) ($_SESSION["usuario"]["email"] ?? "")) ?></p>
+            </section>
+            <p class="account-panel-status" id="accountPanelStatus" role="status">Cargando tus datos…</p>
+            <section class="account-panel-section" id="accountOrdersSection" hidden>
+              <h3>Mis pedidos</h3>
+              <div id="accountOrdersList"></div>
+              <div class="account-panel-section-heading">
+                <h3>Productos personalizados</h3>
+                <a href="/personalizacion" class="account-panel-new-request">Nueva solicitud</a>
+              </div>
+              <div id="accountRequestsList"></div>
+            </section>
+          </div>
+          <div class="account-panel-footer">
+            <form action="/logout" method="post">
+              <button type="submit" class="account-panel-logout">Cerrar sesión</button>
+            </form>
+          </div>
+        </aside>
+      </div>
+    <?php endif; ?>
 
     <!-- FOOTER -->
     <footer class="footer-madera py-4 mt-5">
@@ -80,7 +116,11 @@
             <ul class="list-unstyled small">
               <li><a href="/" class="footer-link">Inicio</a></li>
               <li><a href="/contacto" class="footer-link">Contacto</a></li>
-              <li><a href="/login" class="footer-link">Mi cuenta</a></li>
+              <?php if (!empty($_SESSION["usuario_id"])): ?>
+                <li><button type="button" class="footer-link footer-account-trigger account-panel-trigger">Mi cuenta</button></li>
+              <?php else: ?>
+                <li><a href="/login" class="footer-link">Mi cuenta</a></li>
+              <?php endif; ?>
               <li><a href="/carrito" class="footer-link">Carrito</a></li>
             </ul>
           </div>
@@ -107,5 +147,6 @@
 
     <script src="/js/bootstrap.bundle.min.js"></script>
     <script src="/js/catalogo-filtros.js"></script>
+    <?php if (!empty($_SESSION["usuario_id"])): ?><script src="/js/account-panel.js"></script><?php endif; ?>
   </body>
 </html>

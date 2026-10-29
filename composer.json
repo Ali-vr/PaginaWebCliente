@@ -8,7 +8,7 @@
     "slim/slim": "^4.15",
     "slim/psr7": "^1.8",
     "slim/php-view": "^3.4",
-    "resend/resend-php": "^1.4"
+    "resend/resend-php": "^1.17"
   },
   "scripts": {
     "migrate": "php scripts/migrate.php",

@@ -17,7 +17,7 @@
         </div>
         <div class="d-flex gap-2">
           <button type="submit" class="btn btn-primary">Enviar solicitud</button>
-          <a href="/mi-cuenta" class="btn btn-outline-secondary">Cancelar</a>
+          <a href="/#mi-cuenta" class="btn btn-outline-secondary">Cancelar</a>
         </div>
       </form>
     </div>

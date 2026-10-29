@@ -473,6 +473,12 @@ p {
   .promo-bar {
     font-size: 12px;
   }
+
+  .navbar-acciones {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.75rem !important;
+  }
 }
 
 .navbar-acciones {
@@ -501,8 +507,312 @@ p {
   gap: 6px;
 }
 
+.account-panel-trigger {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.account-panel-trigger:focus-visible,
+.footer-account-trigger:focus-visible,
+.account-panel-close:focus-visible,
+.account-panel-logout:focus-visible,
+.account-panel-new-request:focus-visible {
+  outline: 3px solid var(--color-resina);
+  outline-offset: 3px;
+}
+
+.footer-account-trigger {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
 .nav-link-cuenta-label {
   display: none;
+}
+
+.navbar-acciones .account-panel-trigger .nav-link-cuenta-label {
+  display: inline;
+}
+
+.account-panel-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 1090;
+  visibility: hidden;
+  transition: visibility 0.28s;
+}
+
+body.account-panel-open {
+  overflow: hidden;
+}
+
+.account-panel-shell.is-open {
+  visibility: visible;
+}
+
+.account-panel-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: rgba(26, 18, 8, 0.58);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.account-panel-shell.is-open .account-panel-backdrop {
+  opacity: 1;
+}
+
+.account-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(460px, 100vw);
+  height: 100vh;
+  height: 100dvh;
+  background: var(--color-lienzo);
+  box-shadow: -16px 0 48px rgba(26, 18, 8, 0.2);
+  transform: translateX(100%);
+  transition: transform 0.28s ease;
+}
+
+.account-panel-shell.is-open .account-panel {
+  transform: translateX(0);
+}
+
+.account-panel-header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.4rem 1.5rem 1.1rem;
+  background: var(--color-carbon);
+  color: var(--color-lienzo);
+}
+
+.account-panel-eyebrow {
+  margin-bottom: 0.25rem;
+  color: rgba(245, 240, 232, 0.7);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.account-panel-title {
+  margin-bottom: 0;
+  color: var(--color-lienzo);
+  font-size: 1.8rem;
+}
+
+.account-panel-close {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(245, 240, 232, 0.35);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-lienzo);
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.account-panel-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.25rem 1.5rem;
+}
+
+.account-panel-content [hidden] {
+  display: none !important;
+}
+
+.account-panel-profile {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-humo);
+  border-radius: 12px;
+  background: var(--color-papel);
+}
+
+.account-panel-greeting {
+  margin-bottom: 0.15rem;
+  color: var(--color-grafito);
+  font-size: 1.05rem;
+}
+
+.account-panel-email {
+  margin-bottom: 0;
+  color: var(--color-ceniza);
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+}
+
+.account-panel-status {
+  color: var(--color-ceniza);
+  font-size: 0.9rem;
+}
+
+.account-panel-status:empty {
+  display: none;
+}
+
+.account-panel-section {
+  margin-top: 1.35rem;
+}
+
+.account-panel-section h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+}
+
+.account-panel-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.account-panel-section-heading h3 {
+  margin-bottom: 0.75rem;
+}
+
+.account-panel-section-heading {
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-humo);
+}
+
+.account-panel-new-request {
+  flex: 0 0 auto;
+  margin-bottom: 0.75rem;
+  color: var(--color-roble);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.account-panel-card {
+  margin-bottom: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid var(--color-humo);
+  border-radius: 12px;
+  background: var(--color-papel);
+}
+
+.account-panel-card-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.account-panel-card-heading strong {
+  color: var(--color-grafito);
+}
+
+.account-panel-meta {
+  margin-bottom: 0.65rem;
+  color: var(--color-ceniza);
+  font-size: 0.8rem;
+}
+
+.account-panel-card-copy {
+  margin-bottom: 0.65rem;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+}
+
+.account-panel-card-copy:last-child {
+  margin-bottom: 0;
+}
+
+.account-panel-file {
+  display: inline-block;
+  margin-bottom: 0.65rem;
+  color: var(--color-roble);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+
+.account-panel-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  background: var(--color-humo);
+  color: var(--color-grafito);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.account-panel-badge--pending {
+  background: #f4e3b2;
+  color: #604400;
+}
+
+.account-panel-badge--accepted,
+.account-panel-badge--delivered {
+  background: #dcebd4;
+  color: #31532a;
+}
+
+.account-panel-badge--rejected,
+.account-panel-badge--cancelled {
+  background: #f3d9d4;
+  color: #7a3025;
+}
+
+.account-panel-footer {
+  flex: 0 0 auto;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--color-humo);
+  background: var(--color-lienzo);
+}
+
+.account-panel-footer form {
+  margin: 0;
+}
+
+.account-panel-logout {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #9a3e2d;
+  border-radius: 8px;
+  background: transparent;
+  color: #842f22;
+  font-weight: 600;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.account-panel-logout:hover {
+  background: #842f22;
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-panel-shell,
+  .account-panel-backdrop,
+  .account-panel {
+    transition-duration: 0.01ms;
+  }
 }
 
 .catalogo-layout {
